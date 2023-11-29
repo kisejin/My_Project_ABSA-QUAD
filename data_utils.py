@@ -93,7 +93,8 @@ def get_para_tasd_targets(sents, labels):
         all_tri_sentences = []
         for triplet in label:
             at, ac, sp = triplet
-
+            at, ac, sp = at.lower(), ac.lower(), sp.lower()
+            
             man_ot = sentword2opinion[sp]  # 'positive' -> 'great'
 
             if at == "NULL":
