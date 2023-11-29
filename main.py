@@ -123,6 +123,7 @@ def get_dataset(tokenizer, type_path, args):
         tokenizer=tokenizer,
         data_dir=args.dataset,
         data_type=type_path,
+        task = args.task,
         max_len=args.max_seq_length,
     )
 
@@ -383,6 +384,7 @@ dataset = ABSADataset(
     tokenizer=tokenizer,
     data_dir=args.dataset,
     data_type="dev",
+    task = args.task,
     max_len=args.max_seq_length,
 )
 data_sample = dataset[7]  # a random data sample
@@ -450,6 +452,7 @@ if args.do_direct_eval:
         tokenizer,
         data_dir=args.dataset,
         data_type="test",
+        task = args.task,
         max_len=args.max_seq_length,
     )
     test_loader = DataLoader(test_dataset, batch_size=32, num_workers=4)
@@ -497,6 +500,7 @@ if args.do_inference:
         tokenizer,
         data_dir=args.dataset,
         data_type="test",
+        task = args.task,
         max_len=args.max_seq_length,
     )
     test_loader = DataLoader(test_dataset, batch_size=32, num_workers=4)
