@@ -25,12 +25,12 @@ aspect_cate_list = [
     "drinks style_options",
     "restaurant general",
     "food style_options",
-    "Facility",
-    "Amenity",
-    "Service",
-    "Experience",
-    "Branding",
-    "Loyalty",
+    "facility",
+    "amenity",
+    "service",
+    "experience",
+    "branding",
+    "loyalty",
 ]
 
 
