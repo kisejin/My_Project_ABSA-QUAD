@@ -130,7 +130,7 @@ def get_para_asqp_targets(sents, labels):
     return targets
 
 
-def get_transformed_io(data_path, data_dir):
+def get_transformed_io(data_path, data_dir, task = 'asqp'):
     """
     The main function to transform input & target according to the task
     """
@@ -139,7 +139,6 @@ def get_transformed_io(data_path, data_dir):
     # the input is just the raw sentence
     inputs = [s.copy() for s in sents]
 
-    task = "asqp"
     if task == "aste":
         targets = get_para_aste_targets(sents, labels)
     elif task == "tasd":
@@ -153,7 +152,7 @@ def get_transformed_io(data_path, data_dir):
 
 
 class ABSADataset(Dataset):
-    def __init__(self, tokenizer, data_dir, data_type, max_len=128):
+    def __init__(self, tokenizer, data_dir, data_type, task, max_len=128):
         # './data/rest16/train.txt'
         self.data_path = f"data/{data_dir}/{data_type}.txt"
         self.max_len = max_len
@@ -163,6 +162,8 @@ class ABSADataset(Dataset):
         self.id_users = []
         self.inputs = []
         self.targets = []
+
+        self.task = task
 
         self._build_examples()
 
@@ -189,7 +190,7 @@ class ABSADataset(Dataset):
 
     def _build_examples(self):
         id_user, inputs, targets = get_transformed_io(
-            self.data_path, self.data_dir
+            self.data_path, self.data_dir, self.task
         )
         print(id_user)
         check = 1 if len(id_user) > 0 else 0
