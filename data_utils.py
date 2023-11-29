@@ -92,7 +92,7 @@ def get_para_tasd_targets(sents, labels):
     for label in labels:
         all_tri_sentences = []
         for triplet in label:
-            print(triplet)
+            # print(triplet)
             at, ac, sp = triplet
             at, ac, sp = at.lower(), ac.lower(), sp.lower()
             
