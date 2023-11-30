@@ -13,6 +13,7 @@ from eval_utils import compute_scores
 from pytorch_lightning import seed_everything
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import numpy as np
 
 # from transformers import BertTokenizer, EncoderDecoderModel
 from transformers import (
@@ -326,7 +327,7 @@ class LoggingCallback(pl.Callback):
                     writer.write("{} = {}\n".format(key, str(metrics[key])))
 
 
-def evaluate(data_loader, model, sents):
+def evaluate(data_loader, model, sents, check_inference = False):
     """
     Compute scores given the predictions and gold labels
     """
@@ -354,16 +355,18 @@ def evaluate(data_loader, model, sents):
         outputs.extend(dec)
         targets.extend(target)
 
-    """
-    print("\nPrint some results to check the sanity of generation method:", '\n', '-'*30)
-    for i in [1, 5, 25, 42, 50]:
-        try:
-            print(f'>>Target    : {targets[i]}')
-            print(f'>>Generation: {outputs[i]}')
-        except UnicodeEncodeError:
-            print('Unable to print due to the coding error')
-    print()
-    """
+    if check_inference:
+        idx = np.random.randint(0, len(targets), 5)
+        print("\nPrint some results to check the sanity of generation method:", '\n', '-'*30)
+       # [1, 5, 25, 42, 50]
+        for i in idx:
+            try:
+                print(f'>>Target    : {targets[i]}')
+                print(f'>>Generation: {outputs[i]}')
+            except UnicodeEncodeError:
+                print('Unable to print due to the coding error')
+        print()
+    
 
     scores, all_labels, all_preds = compute_scores(outputs, targets, sents)
     results = {"scores": scores, "labels": all_labels, "preds": all_preds}
