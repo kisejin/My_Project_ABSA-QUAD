@@ -510,7 +510,7 @@ if args.do_inference:
     # print(test_loader.device)
 
     # compute the performance scores
-    scores = evaluate(test_loader, model, sents)
+    scores = evaluate(test_loader, model, sent, check_inference = True)
 
     # write to file
     log_file_path = f"results_log/{args.dataset}.txt"
