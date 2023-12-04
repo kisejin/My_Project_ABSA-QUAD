@@ -327,7 +327,7 @@ class LoggingCallback(pl.Callback):
                     writer.write("{} = {}\n".format(key, str(metrics[key])))
 
 
-def evaluate(data_loader, model, sents, check_inference = False):
+def evaluate(data_loader, model, sents, check_inference = False, task = 'asqp'):
     """
     Compute scores given the predictions and gold labels
     """
@@ -368,7 +368,7 @@ def evaluate(data_loader, model, sents, check_inference = False):
         print()
     
 
-    scores, all_labels, all_preds = compute_scores(outputs, targets, sents)
+    scores, all_labels, all_preds = compute_scores(outputs, targets, sent, task)
     results = {"scores": scores, "labels": all_labels, "preds": all_preds}
     # pickle.dump(results, open(f"{args.output_dir}/results-{args.dataset}.pickle", 'wb'))
 
