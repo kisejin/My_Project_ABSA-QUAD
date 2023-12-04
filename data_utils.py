@@ -47,9 +47,10 @@ def read_line_examples_from_file(data_path, silence=False):
             if line != "":
                 words, tuples = line.split("####")
                 words = words.split()
-                id_user, word = words[0].split(',')
-                words[0] = word
-                id_users.append(int(id_user))
+                if len(words[0].split(',')) > 1:
+                    id_user, word = words[0].split(',')
+                    words[0] = word
+                    id_users.append(int(id_user))
                 sents.append(words)
                 labels.append(eval(tuples))
     if silence:
