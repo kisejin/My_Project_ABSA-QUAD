@@ -39,24 +39,22 @@ def read_line_examples_from_file(data_path, silence=False):
     Read data from file, each line is: sent####labels
     Return List[List[word]], List[Tuple]
     """
-    id_user, sents, labels = [], [], []
+    id_users, sents, labels = [], [], []
     with open(data_path, "r", encoding="UTF-8") as fp:
         words, labels = [], []
         for line in fp:
             line = line.strip()
             if line != "":
                 words, tuples = line.split("####")
-                if len(re.findall(r"^\d+", words)) > 1:
-                    tmp = words.split(",", 1)
-                    # print(tmp)
-                    id_user.append(tmp[0])
-                    words = tmp[1] if len(tmp) > 1 else ""
-                # print(words)
-                sents.append(words.split())
+                words = words.split()
+                id_user, word = words[0].split(',')
+                words[0] = word
+                id_users.append(int(id_user))
+                sents.append(words)
                 labels.append(eval(tuples))
     if silence:
         print(f"Total examples = {len(sents)}")
-    return id_user, sents, labels
+    return id_users, sents, labels
 
 
 def get_para_aste_targets(sents, labels):
