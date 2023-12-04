@@ -30,6 +30,7 @@ def extract_spans_para(task, seq, seq_type):
         for s in sents:
             # food quality is bad because pizza is bad.
             try:
+                print(s)
                 ac_sp, at_sp = s.split(' because ')
                 
                 ac, sp = ac_sp.split(' is ')
