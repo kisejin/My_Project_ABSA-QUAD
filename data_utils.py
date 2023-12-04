@@ -192,7 +192,7 @@ class ABSADataset(Dataset):
         id_user, inputs, targets = get_transformed_io(
             self.data_path, self.data_dir, self.task
         )
-        print(id_user)
+
         check = 1 if len(id_user) > 0 else 0
         for i in range(len(inputs)):
             # change input and target to two strings
@@ -214,7 +214,6 @@ class ABSADataset(Dataset):
                 return_tensors="pt",
             )
             if check:
-                print(i, id_user[i])
                 self.id_users.append(id_user[i])
             self.inputs.append(tokenized_input)
             self.targets.append(tokenized_target)
