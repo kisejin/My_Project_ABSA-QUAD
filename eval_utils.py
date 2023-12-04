@@ -99,7 +99,7 @@ def compute_f1_scores(pred_pt, gold_pt):
     return scores
 
 
-def compute_scores(pred_seqs, gold_seqs, sents):
+def compute_scores(pred_seqs, gold_seqs, sent, task = 'asqp'):
     """
     Compute model performance
     """
@@ -109,8 +109,8 @@ def compute_scores(pred_seqs, gold_seqs, sents):
     all_labels, all_preds = [], []
 
     for i in range(num_samples):
-        gold_list = extract_spans_para('asqp', gold_seqs[i], 'gold')
-        pred_list = extract_spans_para('asqp', pred_seqs[i], 'pred')
+        gold_list = extract_spans_para(task, gold_seqs[i], 'gold')
+        pred_list = extract_spans_para(task, pred_seqs[i], 'pred')
 
         all_labels.append(gold_list)
         all_preds.append(pred_list)
