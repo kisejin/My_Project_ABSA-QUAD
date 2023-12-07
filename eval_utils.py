@@ -15,6 +15,14 @@ numopinion2word = {'SP1': 'positive', 'SP2': 'negative', 'SP3': 'neutral'}
 def extract_spans_para(task, seq, seq_type):
     quads = []
     sents = [s.strip() for s in seq.split('[SSEP]')]
+
+    # Replace subword of "[[SSEP]]" -> ''
+    list_Words = [ '[SSEP', '[SSE', '[SS', '[S', '[']
+    big_regex = re.compile('|'.join(map(re.escape, list_Words)))
+    sents = [big_regex.sub("", s) for s in sents]
+
+
+
     if task == 'aste':
         for s in sents:
             # It is bad because editing is problem.
@@ -27,28 +35,52 @@ def extract_spans_para(task, seq, seq_type):
                 a, b, c = '', '', ''
             quads.append((a, b, c))
     elif task == 'tasd':
+
         for s in sents:
             # food quality is bad because pizza is bad.
+
+            # print(f'\nSentence: {s}')
             try:
-                print(s)
-                ac_sp, at_sp = s.split(' because ')
-                
+                # ac_sp, at_sp = s.split(' because ')
+                # Check sentence is consist two or more than 'because'
+                s_tmp = s.split(' because ')
+                # ac_sp, at_sp = s_tmp
+                if len(s_tmp) > 2:
+                    ac_sp = s_tmp[0]
+                    at_sp = s_tmp[1] + ' because ' + s_tmp[2]
+                else:
+                    ac_sp, at_sp = s_tmp
+
+
+                #  Extract sentiment level in statement 1 of sentence
                 ac, sp = ac_sp.split(' is ')
-                at, sp2 = at_sp.split(' is ')
-                
+
+                # Check statement 2 consist two or more than "is"
+                at_sp2 = at_sp.split(' is ')
+                if len(at_sp2) > 2:
+                    at = at_sp2[0] + ' is ' + at_sp2[1]
+                    sp2 = at_sp2[2]
+                else:
+                    at, sp2 = at_sp2
+
                 sp = opinion2word.get(sp, 'nope')
                 sp2 = opinion2word.get(sp2, 'nope')
                 if sp != sp2:
                     print(f'Sentiment polairty of AC({sp}) and AT({sp2}) is inconsistent!')
-                
+                    print(f'Sentence: {s}\n')
+
                 # if the aspect term is implicit
                 if at.lower() == 'it':
                     at = 'NULL'
+
+                # print(f'AC({ac}), AT({at}), SP({sp})\n')
             except ValueError:
                 # print(f'In {seq_type} seq, cannot decode: {s}')
                 ac, at, sp = '', '', ''
-            
+
             quads.append((ac, at, sp))
+
+
     elif task == 'asqp':
         for s in sents:
             # food quality is bad because pizza is over cooked.
