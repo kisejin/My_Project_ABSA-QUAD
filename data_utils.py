@@ -91,15 +91,19 @@ def get_para_tasd_targets(sents, labels):
     for label in labels:
         all_tri_sentences = []
         for triplet in label:
-            # print(triplet)
+
             at, ac, sp = triplet
             at, ac, sp = at.lower(), ac.lower(), sp.lower()
-            
+
+            # Remove special characters in the end of aspect term
+            at = re.sub(r'([^\w\s]|_)+(?=\s|$)', '', at)
+
             man_ot = sentword2opinion[sp]  # 'positive' -> 'great'
 
             if at == "NULL":
                 at = "it"
             one_tri = f"{ac} is {man_ot} because {at} is {man_ot}"
+
             all_tri_sentences.append(one_tri)
 
         target = " [SSEP] ".join(all_tri_sentences)
