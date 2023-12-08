@@ -107,21 +107,60 @@ def extract_spans_para(task, seq, seq_type):
     return quads
 
 
+def length_of_null_quads(list_span: list):
+    return sum(1 for x in list_span if x[0] == '')
+
+
+
 def compute_f1_scores(pred_pt, gold_pt):
     """
     Function to compute F1 scores with pred and gold quads
     The input needs to be already processed
     """
     # number of true postive, gold standard, predictions
-    n_tp, n_gold, n_pred = 0, 0, 0
-
+    n_tp, n_gold, n_pred, n_gold_null, n_pred_null = 0, 0, 0, 0, 0
+    sbert_model = SentenceTransformer('bert-base-nli-mean-tokens')
     for i in range(len(pred_pt)):
-        n_gold += len(gold_pt[i])
-        n_pred += len(pred_pt[i])
+            # n_gold += len(gold_pt[i])
+            # n_pred += len(pred_pt[i])
 
-        for t in pred_pt[i]:
-            if t in gold_pt[i]:
-                n_tp += 1
+            # for t in pred_pt[i][]:
+            #     if t in gold_pt[i]:
+            #         n_tp += 1
+
+
+
+            ####### CONFIG #######
+            n_gold += len(gold_pt[i])
+            n_gold_null += length_of_null_quads(gold_pt[i])
+
+            n_pred += len(pred_pt[i])
+            n_pred_null += length_of_null_quads(pred_pt[i])
+
+            for p, g in zip(pred_pt[i], gold_pt[i]):
+                  if p[0] != '' and g[0] != '':
+
+                      if p == g:
+                          n_tp += 1
+                      else:
+                          # Similarity between gold and pred by bert embedding
+                          encode_gold = sbert_model.encode(g[1])
+                          encode_pred = sbert_model.encode(p[1])
+
+                          # Define cosine similarity
+                          cos = torch.nn.CosineSimilarity(dim = 0, eps=1e-6)
+                          sim = cos(torch.Tensor(encode_gold), torch.Tensor(encode_pred)).item()
+
+                          if sim >= 0.4 and p[0].lower() == g[0].lower() and p[2:]== g[2:]:
+                              n_tp += 1
+
+            ####### ........ #######
+
+
+
+
+    n_gold = n_gold - n_gold_null
+    n_pred = n_pred - n_pred_null
 
     print(f"number of gold spans: {n_gold}, predicted spans: {n_pred}, hit: {n_tp}")
     precision = float(n_tp) / float(n_pred) if n_pred != 0 else 0
