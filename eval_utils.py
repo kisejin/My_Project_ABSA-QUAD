@@ -4,6 +4,8 @@
 
 import re
 from data_utils import aspect_cate_list
+from sentence_transformers import SentenceTransformer
+import torch
 
 sentiment_word_list = ['positive', 'negative', 'neutral']
 opinion2word = {'great': 'positive', 'bad': 'negative', 'ok': 'neutral'}
