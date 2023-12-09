@@ -110,9 +110,7 @@ def extract_spans_para(task, seq, seq_type):
 
 
 def length_of_null_quads(list_span: list):
-    return sum(1 for x in list_span if x[0] == '')
-
-
+    return sum(1 for x in list_span if (x[0] == '' and x[1] == '' and x[2] == ''))
 
 def compute_f1_scores(pred_pt, gold_pt):
     """
@@ -130,8 +128,6 @@ def compute_f1_scores(pred_pt, gold_pt):
             #     if t in gold_pt[i]:
             #         n_tp += 1
 
-
-
             ####### CONFIG #######
             n_gold += len(gold_pt[i])
             n_gold_null += length_of_null_quads(gold_pt[i])
@@ -140,7 +136,7 @@ def compute_f1_scores(pred_pt, gold_pt):
             n_pred_null += length_of_null_quads(pred_pt[i])
 
             for p, g in zip(pred_pt[i], gold_pt[i]):
-                  if p[0] != '' and g[0] != '':
+                  if (p[0] != '' and g[0] != '') and (p[1] != '' and g[1] != ''):
 
                       if p == g:
                           n_tp += 1
