@@ -49,7 +49,7 @@ def extract_spans_para(task, seq, seq_type):
                 # ac_sp, at_sp = s_tmp
                 if len(s_tmp) > 2:
                     ac_sp = s_tmp[0]
-                    at_sp = s_tmp[1] + ' because ' + s_tmp[2]
+                    at_sp = ' because '.join(sent for sent in s_tmp[1:])
                 else:
                     ac_sp, at_sp = s_tmp
 
@@ -60,8 +60,8 @@ def extract_spans_para(task, seq, seq_type):
                 # Check statement 2 consist two or more than "is"
                 at_sp2 = at_sp.split(' is ')
                 if len(at_sp2) > 2:
-                    at = at_sp2[0] + ' is ' + at_sp2[1]
-                    sp2 = at_sp2[2]
+                    at = ' is '.join(sent for sent in at_sp2[:-1])
+                    sp2 = at_sp2[-1]
                 else:
                     at, sp2 = at_sp2
 
