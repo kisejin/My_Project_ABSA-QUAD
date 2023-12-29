@@ -235,24 +235,21 @@ class T5FineTuner(pl.LightningModule):
         self.opt = optimizer
         return [optimizer]
 
-    # def test_step(self, batch, batch_idx):
-    #     lm_labels = batch["target_ids"]
-    #     lm_labels[lm_labels[:, :] == self.tokenizer.pad_token_id] = -100
+    def predict_step(self, batch, batch_idx):
 
-    #     outputs = self(
-    #         input_ids=batch["source_ids"],
-    #         attention_mask=batch["source_mask"],
-    #         labels=lm_labels,
-    #         decoder_attention_mask=batch['target_mask']
-    #     )
+        device = 'cuda' if torch.cuda.is_availabel() else 'cpu'
 
-    # def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx, second_order_closure=None):
-    #     if self.trainer.use_tpu:
-    #         xm.optimizer_step(optimizer)
-    #     else:
-    #         optimizer.step()
-    #     optimizer.zero_grad()
-    #     self.lr_scheduler.step()
+        outs = self.model.generate(
+            input_ids=batch['source_ids'].to(device),
+            attention_mask=batch['source_mask'].to(device),
+            max_length=128
+        ) # num_beams=8, early_stopping=True
+
+        dec = [
+            self.tokenizer.decode(ids, skip_special_tokens=True) for ids in outs
+        ]
+
+        return dec
 
     def get_tqdm_dict(self):
         tqdm_dict = {
