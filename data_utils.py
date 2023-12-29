@@ -46,13 +46,15 @@ def read_line_examples_from_file(data_path, silence=False):
             line = line.strip()
             if line != "":
                 words, tuples = line.split("####")
+                if tuples != "":
+                    labels.append(eval(tuples))
                 words = words.split()
                 if len(words[0].split(',', 1)) > 1:
                     id_user, word = words[0].split(',',1)
                     words[0] = word
                     id_users.append(int(id_user))
                 sents.append(words)
-                labels.append(eval(tuples))
+
     if silence:
         print(f"Total examples = {len(sents)}")
     return id_users, sents, labels
@@ -221,3 +223,56 @@ class ABSADataset(Dataset):
                 self.id_users.append(id_user[i])
             self.inputs.append(tokenized_input)
             self.targets.append(tokenized_target)
+
+class ABSADataset_nolabel(Dataset):
+    def __init__(self, tokenizer, data_dir, data_type, task, max_len=128):
+        # './data/rest16/train.txt'
+        self.data_path = f"data/{data_dir}/{data_type}.txt"
+        self.max_len = max_len
+        self.tokenizer = tokenizer
+        self.data_dir = data_dir
+
+        self.id_users = []
+        self.inputs = []
+
+        self.task = task
+
+        self._build_examples()
+
+    def __len__(self):
+        return len(self.inputs)
+
+    def __getitem__(self, index):
+        source_ids = self.inputs[index]["input_ids"].squeeze()
+
+        src_mask = self.inputs[index][
+            "attention_mask"
+        ].squeeze()  # might need to squeeze
+
+        return {
+            "source_ids": source_ids,
+            "source_mask": src_mask,
+        }
+
+    def _build_examples(self):
+        id_user, inputs, targets = get_transformed_io(
+            self.data_path, self.data_dir, self.task
+        )
+
+        check = 1 if len(id_user) > 0 else 0
+        for i in range(len(inputs)):
+            # change input and target to two strings
+            input = " ".join(inputs[i])
+
+            tokenized_input = self.tokenizer.batch_encode_plus(
+                [input],
+                max_length=self.max_len,
+                padding="max_length",
+                truncation=True,
+                return_tensors="pt",
+            )
+
+            if check:
+                self.id_users.append(id_user[i])
+            self.inputs.append(tokenized_input)
+
