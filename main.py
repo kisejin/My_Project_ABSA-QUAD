@@ -199,6 +199,7 @@ class T5FineTuner(pl.LightningModule):
             [x["val_loss"] for x in self.validation_step_outputs]
         ).mean()
         tensorboard_logs = {"val_loss": avg_loss}
+        self.validation_step_outputs.clear()  # free memory
         return {
             "avg_val_loss": avg_loss,
             "log": tensorboard_logs,
