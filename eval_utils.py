@@ -61,9 +61,12 @@ def extract_spans_para(task, seq, seq_type):
                 at_sp2 = at_sp.split(' is ')
                 if len(at_sp2) > 2:
                     at = ' is '.join(sent for sent in at_sp2[:-1])
+                    at = at.strip()
                     sp2 = at_sp2[-1]
                 else:
                     at, sp2 = at_sp2
+                if 'is' in sp2:
+                    sp2 = sp2.replace('is', '').strip()
 
                 sp = opinion2word.get(sp, 'nope')
                 sp2 = opinion2word.get(sp2, 'nope')
@@ -161,6 +164,7 @@ def compute_f1_scores(pred_pt, gold_pt):
     n_pred = n_pred - n_pred_null
 
     print(f"number of gold spans: {n_gold}, predicted spans: {n_pred}, hit: {n_tp}")
+    print(f"number of null spans: {n_pred_null}")
     precision = float(n_tp) / float(n_pred) if n_pred != 0 else 0
     recall = float(n_tp) / float(n_gold) if n_gold != 0 else 0
     f1 = 2 * precision * recall / (precision + recall) if precision != 0 or recall != 0 else 0
