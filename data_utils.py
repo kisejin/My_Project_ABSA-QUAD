@@ -48,6 +48,9 @@ def read_line_examples_from_file(data_path, silence=False):
                 words, tuples = line.split("####")
                 if tuples != "":
                     labels.append(eval(tuples))
+                else:
+                    words = line
+                    
                 words = words.split()
                 if len(words[0].split(',', 1)) > 1:
                     id_user, word = words[0].split(',',1)
@@ -98,11 +101,13 @@ def get_para_tasd_targets(sents, labels):
             at, ac, sp = at.lower(), ac.lower(), sp.lower()
 
             # Remove special characters in the end of aspect term
-            at = re.sub(r'([^\w\s]|_)+(?=\s|$)', '', at)
+            # at = re.sub(r'([^\w\s]|_)+(?=\s|$)', '', at)
+            pattern = r'^[^\w\s]+|[^\w\s]+$'
+            at = re.sub(pattern, '', at).strip()
 
             man_ot = sentword2opinion[sp]  # 'positive' -> 'great'
 
-            if at == "NULL":
+            if at == "NULL" or at == '':
                 at = "it"
             one_tri = f"{ac} is {man_ot} because {at} is {man_ot}"
 
