@@ -115,6 +115,35 @@ def extract_spans_para(task, seq, seq_type):
 def length_of_null_quads(list_span: list):
     return sum(1 for x in list_span if (x[0] == '' and x[1] == '' and x[2] == ''))
 
+def check_label(pred_i, gold):
+    
+    # Option 1: sentence bert - encoder transformers
+    # sbert_model = SentenceTransformer('bert-base-nli-mean-tokens')
+    
+    # Option 2: statistic technique: tf-idf
+    vectorizer = TfidfVectorizer()
+    
+    for g in gold:
+        if pred_i == g:
+            return 1
+        else:
+              # Option 1
+#             encode_gold = sbert_model.encode(g[0])
+#             encode_pred = sbert_model.encode(pred_i[0])
+            
+#             cos = torch.nn.CosineSimilarity(dim = 0, eps=1e-6)
+#             sim = cos(torch.Tensor(encode_gold), torch.Tensor(encode_pred)).item()
+            # Option 2
+            vectors = vectorizer.fit_transform([g[0], pred_i[0]])
+            sim = cosine_similarity(vectors)
+            sim = sim[0,1]
+            
+            # Check conditional
+            if sim >= 0.4 and pred_i[1:] == g[1:]:
+                return 1
+    return 0
+
+
 def compute_f1_scores(pred_pt, gold_pt):
     """
     Function to compute F1 scores with pred and gold quads
@@ -122,7 +151,10 @@ def compute_f1_scores(pred_pt, gold_pt):
     """
     # number of true postive, gold standard, predictions
     n_tp, n_gold, n_pred, n_gold_null, n_pred_null = 0, 0, 0, 0, 0
-    sbert_model = SentenceTransformer('bert-base-nli-mean-tokens')
+
+    # Option 1: Sentence Bert
+    # sbert_model = SentenceTransformer('bert-base-nli-mean-tokens')
+  
     for i in range(len(pred_pt)):
             # n_gold += len(gold_pt[i])
             # n_pred += len(pred_pt[i])
@@ -131,32 +163,44 @@ def compute_f1_scores(pred_pt, gold_pt):
             #     if t in gold_pt[i]:
             #         n_tp += 1
 
-            ####### CONFIG #######
+            ####### CONFIG 1 #######
+            # n_gold += len(gold_pt[i])
+            # n_gold_null += length_of_null_quads(gold_pt[i])
+
+            # n_pred += len(pred_pt[i])
+            # n_pred_null += length_of_null_quads(pred_pt[i])
+
+            # for p, g in zip(pred_pt[i], gold_pt[i]):
+            #       if (p[0] != '' and g[0] != '') and (p[1] != '' and g[1] != ''):
+
+            #           if p == g:
+            #               n_tp += 1
+            #           else:
+            #               # Similarity between gold and pred by bert embedding
+            #               encode_gold = sbert_model.encode(g[1])
+            #               encode_pred = sbert_model.encode(p[1])
+
+            #               # Define cosine similarity
+            #               cos = torch.nn.CosineSimilarity(dim = 0, eps=1e-6)
+            #               sim = cos(torch.Tensor(encode_gold), torch.Tensor(encode_pred)).item()
+
+            #               if sim >= 0.4 and p[0].lower() == g[0].lower() and p[2:]== g[2:]:
+            #                   n_tp += 1
+
+            ####### ........ #######
+
+             ####### CONFIG 2 #######
             n_gold += len(gold_pt[i])
             n_gold_null += length_of_null_quads(gold_pt[i])
 
             n_pred += len(pred_pt[i])
             n_pred_null += length_of_null_quads(pred_pt[i])
-
-            for p, g in zip(pred_pt[i], gold_pt[i]):
-                  if (p[0] != '' and g[0] != '') and (p[1] != '' and g[1] != ''):
-
-                      if p == g:
-                          n_tp += 1
-                      else:
-                          # Similarity between gold and pred by bert embedding
-                          encode_gold = sbert_model.encode(g[1])
-                          encode_pred = sbert_model.encode(p[1])
-
-                          # Define cosine similarity
-                          cos = torch.nn.CosineSimilarity(dim = 0, eps=1e-6)
-                          sim = cos(torch.Tensor(encode_gold), torch.Tensor(encode_pred)).item()
-
-                          if sim >= 0.4 and p[0].lower() == g[0].lower() and p[2:]== g[2:]:
-                              n_tp += 1
-
+            for p in pred_pt[i]:
+                if p[0] != '' and p[1] != '':
+                    n_tp += check_label(p, gold_pt[i])
+            
+            
             ####### ........ #######
-
 
 
 
